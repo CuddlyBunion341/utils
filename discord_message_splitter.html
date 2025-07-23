@@ -9,13 +9,20 @@
 <body>
     <main>
         <h1>Discord Message Splitter</h1>
+
+        <p>
+            This tool is designed to help you split long messages into smaller parts that can be sent in Discord.
+            <a href="https://github.com/CuddlyBunion341/utils">View on GitHub</a>
+        </p>
         
         <label for="message">Original Message:</label>
         <textarea id="message" rows="10" placeholder="Paste your long message here..."></textarea>
         
-        <label for="length">Split Length:</label>
-        <input type="number" id="length" value="2000" min="1" max="4000">
-        <small>Discord limits: 2000 chars (standard), 4000 chars (Nitro)</small>
+        <div>
+            <label for="length">Split Length:</label>
+            <input type="number" id="length" value="2000" min="1" max="4000">
+            <small>Discord limits: 2000 chars (standard), 4000 chars (Nitro)</small>
+        </div>
         
         <button onclick="splitMessage()">Split Message</button>
         
