@@ -29,6 +29,8 @@
 
     <script>
         // This code is AI generated because I'm lazy
+        let storedParts = [];
+        
         function splitMessage() {
             const message = document.getElementById('message').value;
             const length = parseInt(document.getElementById('length').value);
@@ -59,6 +61,7 @@
                 parts.push(remaining);
             }
             
+            storedParts = parts;
             displayResults(parts);
         }
         
@@ -101,6 +104,7 @@
                     e.stopPropagation();
                     copyToClipboard(part, copyBtn).then(() => {
                         partDiv.remove();
+                        checkIfAllBlocksGone();
                     });
                 };
                 
@@ -192,6 +196,30 @@
                     button.textContent = 'Copy';
                 }, 1000);
             }
+        }
+        
+        function checkIfAllBlocksGone() {
+            const resultsDiv = document.getElementById('results');
+            const remainingParts = resultsDiv.querySelectorAll('div[style*="margin-bottom"]');
+            
+            if (remainingParts.length === 0 && storedParts.length > 0) {
+                showRestoreButton();
+            }
+        }
+        
+        function showRestoreButton() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <p>All message parts have been copied!</p>
+                    <button onclick="restoreAllBlocks()" style="padding: 0.5rem 1rem;">Restore All Blocks</button>
+                </div>
+            `;
+            document.getElementById('controls').style.display = 'none';
+        }
+        
+        function restoreAllBlocks() {
+            displayResults(storedParts);
         }
         
         document.getElementById('message').addEventListener('input', splitMessage);
