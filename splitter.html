@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Message Splitter</title>
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+</head>
+<body>
+    <main>
+        <h1>Discord Message Splitter</h1>
+        
+        <label for="message">Original Message:</label>
+        <textarea id="message" rows="10" placeholder="Paste your long message here..."></textarea>
+        
+        <label for="length">Split Length:</label>
+        <input type="number" id="length" value="2000" min="1" max="4000">
+        <small>Discord limits: 2000 chars (standard), 4000 chars (Nitro)</small>
+        
+        <button onclick="splitMessage()">Split Message</button>
+        
+        <div id="results"></div>
+    </main>
+
+    <script>
+        function splitMessage() {
+            const message = document.getElementById('message').value;
+            const length = parseInt(document.getElementById('length').value);
+            const resultsDiv = document.getElementById('results');
+            
+            if (!message.trim()) {
+                resultsDiv.innerHTML = '';
+                return;
+            }
+            
+            const parts = [];
+            let remaining = message;
+            
+            while (remaining.length > length) {
+                let splitPoint = length;
+                
+                const lastNewline = remaining.lastIndexOf('\n', length);
+                
+                if (lastNewline > 0) {
+                    splitPoint = lastNewline;
+                }
+                
+                parts.push(remaining.substring(0, splitPoint));
+                remaining = remaining.substring(splitPoint).trim();
+            }
+            
+            if (remaining.length > 0) {
+                parts.push(remaining);
+            }
+            
+            displayResults(parts);
+        }
+        
+        function displayResults(parts) {
+            const resultsDiv = document.getElementById('results');
+            
+            if (parts.length <= 1) {
+                resultsDiv.innerHTML = '<p>Message fits in one part!</p>';
+                return;
+            }
+            
+            resultsDiv.innerHTML = '<h2>Split into ' + parts.length + ' parts:</h2>';
+            
+            parts.forEach((part, index) => {
+                const partDiv = document.createElement('div');
+                partDiv.style.marginBottom = '1rem';
+                partDiv.style.border = '1px solid var(--border)';
+                partDiv.style.borderRadius = '4px';
+                
+                const header = document.createElement('div');
+                header.style.display = 'flex';
+                header.style.justifyContent = 'space-between';
+                header.style.alignItems = 'center';
+                header.style.padding = '1rem';
+                header.style.cursor = 'pointer';
+                header.style.backgroundColor = 'var(--accent-bg)';
+                header.onclick = () => toggleContent(content, arrow);
+                
+                const titleDiv = document.createElement('div');
+                titleDiv.style.display = 'flex';
+                titleDiv.style.alignItems = 'center';
+                titleDiv.style.gap = '0.5rem';
+                
+                const arrow = document.createElement('span');
+                arrow.textContent = '▼';
+                arrow.style.fontSize = '0.8rem';
+                arrow.style.transition = 'transform 0.2s';
+                
+                const title = document.createElement('strong');
+                title.textContent = 'Part ' + (index + 1) + ' (' + part.length + ' chars)';
+                
+                titleDiv.appendChild(arrow);
+                titleDiv.appendChild(title);
+                
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = 'Copy';
+                copyBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    copyToClipboard(part, copyBtn);
+                };
+                
+                header.appendChild(titleDiv);
+                header.appendChild(copyBtn);
+                
+                const content = document.createElement('div');
+                content.style.padding = '1rem';
+                content.style.whiteSpace = 'pre-wrap';
+                content.style.wordBreak = 'break-word';
+                content.style.borderTop = '1px solid var(--border)';
+                content.textContent = part;
+                
+                partDiv.appendChild(header);
+                partDiv.appendChild(content);
+                resultsDiv.appendChild(partDiv);
+            });
+        }
+        
+        function toggleContent(content, arrow) {
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.style.transform = 'rotate(0deg)';
+                arrow.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                arrow.style.transform = 'rotate(-90deg)';
+                arrow.textContent = '▶';
+            }
+        }
+        
+        async function copyToClipboard(text, button) {
+            try {
+                await navigator.clipboard.writeText(text);
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 1000);
+            } catch (err) {
+                button.textContent = 'Failed';
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                }, 1000);
+            }
+        }
+        
+        document.getElementById('message').addEventListener('input', splitMessage);
+        document.getElementById('length').addEventListener('input', splitMessage);
+    </script>
+</body>
+</html>
