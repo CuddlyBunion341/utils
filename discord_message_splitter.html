@@ -11,25 +11,24 @@
         <h1>Discord Message Splitter</h1>
 
         <p>
-            This tool is designed to help you split long messages into smaller parts that can be sent in Discord.
+            This tool is designed to help you split long messages into smaller parts that can be sent in Discord. (Purely Client Side)
             <a href="https://github.com/CuddlyBunion341/utils">View on GitHub</a>
         </p>
         
         <label for="message">Original Message:</label>
-        <textarea id="message" rows="10" placeholder="Paste your long message here..."></textarea>
+        <textarea id="message" rows="10" placeholder="Paste your long message here and see the results..."></textarea>
         
         <div>
-            <label for="length">Split Length:</label>
+            <label for="length">Split Length (chars):</label>
             <input type="number" id="length" value="2000" min="1" max="4000">
             <small>Discord limits: 2000 chars (standard), 4000 chars (Nitro)</small>
         </div>
-        
-        <button onclick="splitMessage()">Split Message</button>
         
         <div id="results"></div>
     </main>
 
     <script>
+        // This code is AI generated because I'm lazy
         function splitMessage() {
             const message = document.getElementById('message').value;
             const length = parseInt(document.getElementById('length').value);
@@ -84,24 +83,16 @@
                 header.style.justifyContent = 'space-between';
                 header.style.alignItems = 'center';
                 header.style.padding = '1rem';
-                header.style.cursor = 'pointer';
                 header.style.backgroundColor = 'var(--accent-bg)';
-                header.onclick = () => toggleContent(content, arrow);
                 
                 const titleDiv = document.createElement('div');
                 titleDiv.style.display = 'flex';
                 titleDiv.style.alignItems = 'center';
                 titleDiv.style.gap = '0.5rem';
                 
-                const arrow = document.createElement('span');
-                arrow.textContent = '▼';
-                arrow.style.fontSize = '0.8rem';
-                arrow.style.transition = 'transform 0.2s';
-                
                 const title = document.createElement('strong');
                 title.textContent = 'Part ' + (index + 1) + ' (' + part.length + ' chars)';
                 
-                titleDiv.appendChild(arrow);
                 titleDiv.appendChild(title);
                 
                 const copyBtn = document.createElement('button');
@@ -119,7 +110,53 @@
                 content.style.whiteSpace = 'pre-wrap';
                 content.style.wordBreak = 'break-word';
                 content.style.borderTop = '1px solid var(--border)';
-                content.textContent = part;
+                
+                if (part.length <= 200) {
+                    content.textContent = part;
+                } else {
+                    // Find first break point: at least 100 chars, but prefer newline
+                    let firstBreak = 100;
+                    const firstNewlineAfter100 = part.indexOf('\n', 100);
+                    if (firstNewlineAfter100 !== -1) {
+                        firstBreak = firstNewlineAfter100 + 1; // Include the newline
+                    }
+                    
+                    // Find last break point: at least 100 chars from end, but prefer newline
+                    let lastBreak = part.length - 100;
+                    const lastNewlineBefore = part.lastIndexOf('\n', part.length - 100);
+                    if (lastNewlineBefore !== -1 && lastNewlineBefore > firstBreak) {
+                        lastBreak = lastNewlineBefore;
+                    }
+                    
+                    const firstPart = part.substring(0, firstBreak);
+                    const lastPart = part.substring(lastBreak);
+                    const middlePart = part.substring(firstBreak, lastBreak);
+                    
+                    const firstSpan = document.createElement('span');
+                    firstSpan.textContent = firstPart;
+                    
+                    const expandBtn = document.createElement('button');
+                    expandBtn.textContent = '... Show full content ...';
+                    expandBtn.style.margin = '0';
+                    expandBtn.style.padding = '0.25rem 0.5rem';
+                    expandBtn.style.fontSize = '0.9rem';
+                    expandBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        toggleMiddleContent(middleSpan, expandBtn, lastSpan);
+                    };
+                    
+                    const middleSpan = document.createElement('span');
+                    middleSpan.textContent = middlePart;
+                    middleSpan.style.display = 'none';
+                    
+                    const lastSpan = document.createElement('span');
+                    lastSpan.textContent = lastPart;
+                    
+                    content.appendChild(firstSpan);
+                    content.appendChild(expandBtn);
+                    content.appendChild(middleSpan);
+                    content.appendChild(lastSpan);
+                }
                 
                 partDiv.appendChild(header);
                 partDiv.appendChild(content);
@@ -127,15 +164,15 @@
             });
         }
         
-        function toggleContent(content, arrow) {
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                arrow.style.transform = 'rotate(0deg)';
-                arrow.textContent = '▼';
+        function toggleMiddleContent(middleSpan, expandBtn, lastSpan) {
+            if (middleSpan.style.display === 'none') {
+                middleSpan.style.display = 'inline';
+                expandBtn.textContent = '... Hide middle content ...';
+                lastSpan.style.display = 'none';
             } else {
-                content.style.display = 'none';
-                arrow.style.transform = 'rotate(-90deg)';
-                arrow.textContent = '▶';
+                middleSpan.style.display = 'none';
+                expandBtn.textContent = '... Show full content ...';
+                lastSpan.style.display = 'inline';
             }
         }
         
