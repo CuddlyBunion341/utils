@@ -99,7 +99,9 @@
                 copyBtn.textContent = 'Copy';
                 copyBtn.onclick = (e) => {
                     e.stopPropagation();
-                    copyToClipboard(part, copyBtn);
+                    copyToClipboard(part, copyBtn).then(() => {
+                        partDiv.remove();
+                    });
                 };
                 
                 header.appendChild(titleDiv);
